@@ -1,0 +1,31 @@
+name: Sylvia AI Cycle
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Сильвия просыпается каждые 30 минут
+  workflow_dispatch:        # Кнопка для ручного запуска в любое время
+
+jobs:
+  run-sylvia:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Настройка Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Запуск Сильвии
+        run: python main.py
+      - name: Сохранение памяти Сильвии
+        run: |
+          git config --global user.name "Sylvia-AI"
+          git config --global user.email "sylvia@ai.bot"
+          git add beliefs.json
+          git commit -m "Сильвия обновила знания"
+          git push
+          
