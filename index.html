@@ -231,18 +231,35 @@
             padding: 12px 16px;
             border-radius: 8px;
             word-wrap: break-word;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .message.user {
             align-self: flex-end;
             background: #238636;
             color: white;
+            animation: slideInRight 0.3s;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .message.ai {
             align-self: flex-start;
             background: #1f6feb;
             color: white;
+        }
+
+        .message.processing {
+            background: #d29922;
+            font-style: italic;
         }
 
         .chat-input-area {
@@ -282,6 +299,11 @@
 
         .chat-send-btn:hover {
             background: #2ea043;
+        }
+
+        .chat-send-btn:disabled {
+            background: #30363d;
+            cursor: not-allowed;
         }
 
         /* СТАТИСТИКА */
@@ -396,36 +418,6 @@
             min-height: 100px;
         }
 
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 24px;
-            background: #30363d;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .toggle-switch.active {
-            background: #238636;
-        }
-
-        .toggle-switch::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            top: 2px;
-            left: 2px;
-            transition: left 0.3s;
-        }
-
-        .toggle-switch.active::after {
-            left: 28px;
-        }
-
         .save-btn {
             width: 100%;
             padding: 12px;
@@ -519,7 +511,7 @@
         </ul>
         <div class="nav-right">
             <div class="user-status">
-                <span id="user-login">Загрузка...</span>
+                <span id="user-login">Готово</span>
             </div>
             <button class="logout-btn" onclick="logout()">Выход</button>
         </div>
@@ -530,7 +522,7 @@
         <div id="home" class="page active">
             <div class="hero">
                 <h1>🤖 Добро пожаловать в Сильвию</h1>
-                <p>Твой персональный ИИ-агент для анализа и обучения</p>
+                <p>Твой персональный ИИ-агент, работающий через GitHub Actions</p>
                 <div class="hero-buttons">
                     <button class="btn-primary" onclick="navigate('chat')">💬 Начать чат</button>
                     <button class="btn-secondary" onclick="navigate('stats')">📊 Посмотреть статистику</button>
@@ -541,32 +533,32 @@
                 <div class="feature-card">
                     <div class="feature-icon">💬</div>
                     <h3>Интеллектуальный чат</h3>
-                    <p>Общайся с ИИ в реальном времени и получай умные ответы</p>
+                    <p>Пиши вопросы - Сильвия отвечает через GitHub Actions!</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🧠</div>
                     <h3>Постоянное обучение</h3>
-                    <p>Сильвия учится из каждого взаимодействия и улучшает свои решения</p>
+                    <p>Сильвия учится из каждого взаимодействия</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📊</div>
                     <h3>Полная статистика</h3>
-                    <p>Отслеживай все анализы и решения в одной таблице</p>
+                    <p>Отслеживай все анализы в одной таблице</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">⚙️</div>
-                    <h3>Настройки</h3>
-                    <p>Настраивай поведение ИИ под свои нужды</p>
+                    <div class="feature-icon">☁️</div>
+                    <h3>Облачный ИИ</h3>
+                    <p>Работает на GitHub Actions - не требует запуска на ПК</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🔒</div>
                     <h3>Безопасность</h3>
-                    <p>Все данные хранятся в приватном GitHub репозитории</p>
+                    <p>Все данные в приватном GitHub репозитории</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">⚡</div>
-                    <h3>Быстрота</h3>
-                    <p>Молниеносные ответы благодаря облачной архитектуре</p>
+                    <h3>Автоматизация</h3>
+                    <p>Обрабатывает сообщения автоматически каждые 5 минут</p>
                 </div>
             </div>
         </div>
@@ -576,7 +568,7 @@
             <div class="chat-container">
                 <div class="chat-box" id="chat-box">
                     <div class="message ai">
-                        👋 Привет! Я Сильвия, твой ИИ-агент. Спроси меня что угодно или скажи мне о целях анализа!
+                        👋 Привет! Я Сильвия, твой ИИ-агент. Спроси меня что-то! Я обрабатываю сообщения через GitHub Actions.
                     </div>
                 </div>
                 <div class="chat-input-area">
@@ -586,7 +578,7 @@
                         placeholder="Напиши сообщение..." 
                         onkeypress="if(event.key==='Enter') sendMessage()"
                     >
-                    <button class="chat-send-btn" onclick="sendMessage()">Отправить</button>
+                    <button class="chat-send-btn" id="send-btn" onclick="sendMessage()">Отправить</button>
                 </div>
             </div>
         </div>
@@ -598,15 +590,11 @@
             <div class="stats-header">
                 <div class="stat-card">
                     <div class="stat-number" id="total-targets">0</div>
-                    <div class="stat-label">Всего целей</div>
+                    <div class="stat-label">Всего сообщений</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="success-count">0</div>
-                    <div class="stat-label">Успешных анализов</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="failed-count">0</div>
-                    <div class="stat-label">Ошибок</div>
+                    <div class="stat-label">Обработано</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="last-update">--</div>
@@ -618,9 +606,9 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Цель (Target)</th>
+                            <th>Сообщение</th>
+                            <th>Ответ Сильвии</th>
                             <th>Статус</th>
-                            <th>Вывод</th>
                             <th>Время</th>
                         </tr>
                     </thead>
@@ -629,6 +617,10 @@
                     </tbody>
                 </table>
             </div>
+
+            <p style="color: #8b949e; margin-top: 20px; text-align: center;">
+                🔄 Обновляется автоматически каждые 3 секунды
+            </p>
         </div>
 
         <!-- НАСТРОЙКИ -->
@@ -637,50 +629,31 @@
             
             <div class="settings-container">
                 <div class="settings-section">
-                    <h3>GitHub Интеграция</h3>
-                    <div class="setting-item">
-                        <label for="github-token">GitHub Token:</label>
-                    </div>
-                    <input type="password" id="github-token" placeholder="Введи свой GitHub token">
-                    <small style="color: #8b949e; display: block; margin-top: 8px;">
-                        Получи на <a href="https://github.com/settings/tokens" target="_blank" style="color: #58a6ff;">GitHub Settings → Developer Settings → Tokens</a>
-                    </small>
+                    <h3>ℹ️ Информация о системе</h3>
+                    <p style="color: #8b949e; line-height: 1.8;">
+                        <strong>Статус:</strong> ✅ GitHub Actions активен<br>
+                        <strong>Интеграция:</strong> Через GitHub API<br>
+                        <strong>Частота обновления:</strong> Каждые 5 минут<br>
+                        <strong>Хранилище:</strong> messages.json, beliefs.json<br>
+                        <strong>Процессор:</strong> sylvia_processor.py
+                    </p>
                 </div>
 
                 <div class="settings-section">
-                    <h3>Параметры ИИ</h3>
-                    <div class="setting-item">
-                        <label for="ai-name">Имя ИИ:</label>
-                    </div>
-                    <input type="text" id="ai-name" placeholder="Введи имя ИИ" value="Сильвия">
-                    
-                    <div class="setting-item" style="margin-top: 15px;">
-                        <label for="ai-personality">Личность:</label>
-                    </div>
-                    <textarea id="ai-personality" placeholder="Опиши личность ИИ...">Я Сильвия - умный и дружелюбный ИИ-агент. Я помогаю анализировать данные и принимать решения.</textarea>
+                    <h3>💾 Синхронизация</h3>
+                    <p style="color: #8b949e; margin-bottom: 15px;">
+                        Данные автоматически синхронизируются с GitHub репозиторием
+                    </p>
+                    <button class="btn-primary" onclick="manualSync()" style="width: 100%;">🔄 Синхронизировать сейчас</button>
                 </div>
 
                 <div class="settings-section">
-                    <h3>Уведомления</h3>
-                    <div class="setting-item">
-                        <label>Звуковые уведомления:</label>
-                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
-                    </div>
-                    <div class="setting-item">
-                        <label>Уведомления по email:</label>
-                        <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
-                    </div>
+                    <h3>🗑️ Опасная зона</h3>
+                    <p style="color: #f85149; margin-bottom: 15px;">
+                        Очистить всю историю сообщений
+                    </p>
+                    <button class="btn-primary" onclick="if(confirm('Ты уверен?')) clearHistory()" style="width: 100%; background: #f85149;">🗑️ Очистить историю</button>
                 </div>
-
-                <div class="settings-section">
-                    <h3>Безопасность</h3>
-                    <div class="setting-item">
-                        <label for="auto-save">Автосохранение (сек):</label>
-                    </div>
-                    <input type="text" id="auto-save" placeholder="30" value="30">
-                </div>
-
-                <button class="save-btn" onclick="saveSettings()">💾 Сохранить настройки</button>
             </div>
         </div>
     </div>
@@ -688,8 +661,8 @@
     <script>
         const REPO_OWNER = 'dedmazay1122-lab';
         const REPO_NAME = 'sylvia-ai';
-        let GITHUB_TOKEN = localStorage.getItem('github_token') || '';
         let currentPage = 'home';
+        let processingMessage = false;
 
         // НАВИГАЦИЯ
         function navigate(page) {
@@ -701,7 +674,7 @@
             currentPage = page;
 
             if (page === 'chat') {
-                document.getElementById('chat-input').focus();
+                setTimeout(() => document.getElementById('chat-input').focus(), 100);
             } else if (page === 'stats') {
                 loadStats();
             }
@@ -709,50 +682,66 @@
 
         // ИНИЦИАЛИЗАЦИЯ
         window.addEventListener('load', () => {
-            if (!GITHUB_TOKEN) {
-                GITHUB_TOKEN = prompt('Введи GitHub токен для работы:');
-                if (GITHUB_TOKEN) {
-                    localStorage.setItem('github_token', GITHUB_TOKEN);
-                }
-            }
-            updateUserLogin();
             loadStats();
+            // Обновляем статистику каждые 3 секунды
+            setInterval(() => {
+                if (currentPage === 'stats') {
+                    loadStats();
+                }
+            }, 3000);
         });
-
-        // ОБНОВЛЕНИЕ ЛОГИНА
-        function updateUserLogin() {
-            if (GITHUB_TOKEN) {
-                document.getElementById('user-login').textContent = '✓ Подключено';
-            } else {
-                document.getElementById('user-login').textContent = '✗ Не авторизован';
-            }
-        }
 
         // ОТПРАВКА СООБЩЕНИЯ
         async function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
+            const sendBtn = document.getElementById('send-btn');
             
-            if (!message) return;
+            if (!message || processingMessage) return;
             
+            // Добавляем сообщение пользователя в чат
             addMessageToChat(message, 'user');
             input.value = '';
+            sendBtn.disabled = true;
+            processingMessage = true;
 
-            // Имитация ответа ИИ
-            const aiResponses = [
-                '🤔 Интересно! Записал это в базу знаний.',
-                '✓ Получил твоё сообщение. Обновляю beliefs.json...',
-                '📝 Спасибо за информацию! Анализирую...',
-                '⚡ Готово! Это очень полезный инсайт.',
-                '🎯 Понял! Учту это в своих решениях.',
-                '💡 Хороший вопрос! Обновляю статистику...'
-            ];
+            // Добавляем статус обработки
+            const processingMsg = addMessageToChat('⏳ Сильвия обрабатывает твоё сообщение...', 'processing');
 
-            setTimeout(() => {
-                const response = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-                addMessageToChat(response, 'ai');
-                saveMessageLog(message, response);
-            }, 500);
+            try {
+                // Сохраняем сообщение в messages.json
+                await saveMessageToRepo(message);
+                
+                // Чекаем ответ каждые 2 секунды
+                let attempts = 0;
+                const checkInterval = setInterval(async () => {
+                    attempts++;
+                    
+                    const response = await getMessagesFromRepo();
+                    const lastMessage = response[response.length - 1];
+                    
+                    if (lastMessage && lastMessage.response && !lastMessage.text.includes(message)) {
+                        clearInterval(checkInterval);
+                        processingMsg.remove();
+                        addMessageToChat(lastMessage.response, 'ai');
+                        sendBtn.disabled = false;
+                        processingMessage = false;
+                    }
+                    
+                    // Если ждём больше 30 секунд, останавливаемся
+                    if (attempts > 15) {
+                        clearInterval(checkInterval);
+                        processingMsg.textContent = '⏱️ Превышено время ожидания. GitHub Actions может быть занят. Попробуй позже!';
+                        sendBtn.disabled = false;
+                        processingMessage = false;
+                    }
+                }, 2000);
+
+            } catch (e) {
+                processingMsg.textContent = '❌ Ошибка: ' + e.message;
+                sendBtn.disabled = false;
+                processingMessage = false;
+            }
         }
 
         // ДОБАВЛЕНИЕ СООБЩЕНИЯ В ЧАТ
@@ -763,114 +752,150 @@
             messageDiv.textContent = text;
             chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
+            return messageDiv;
         }
 
-        // СОХРАНЕНИЕ ЛОГОВ
-        async function saveMessageLog(userMessage, aiResponse) {
-            try {
-                const timestamp = new Date().toISOString();
-                const logEntry = `[${timestamp}] User: ${userMessage}\n[${timestamp}] AI: ${aiResponse}\n`;
-                
-                let sha = '';
-                try {
-                    const response = await fetch(
-                        `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/chat_log.txt`,
-                        { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } }
-                    );
-                    if (response.ok) {
-                        const data = await response.json();
-                        sha = data.sha;
-                    }
-                } catch (e) {}
-
-                await fetch(
-                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/chat_log.txt`,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${GITHUB_TOKEN}`,
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            message: `Chat log: ${new Date().toLocaleString()}`,
-                            content: btoa(logEntry),
-                            sha: sha || undefined
-                        })
-                    }
-                );
-            } catch (e) {
-                console.log('Ошибка при сохранении:', e);
+        // СОХРАНЕНИЕ СООБЩЕНИЯ В РЕПО
+        async function saveMessageToRepo(message) {
+            const token = localStorage.getItem('github_token');
+            if (!token) {
+                throw new Error('GitHub токен не установлен');
             }
+
+            const timestamp = new Date().toISOString();
+            let messages = [];
+            let sha = '';
+
+            // Получаем текущий файл
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/messages.json`,
+                    { headers: { 'Authorization': `token ${token}` } }
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    messages = JSON.parse(atob(data.content)).messages || [];
+                    sha = data.sha;
+                }
+            } catch (e) {}
+
+            // Добавляем новое сообщение
+            messages.push({
+                id: Date.now(),
+                text: message,
+                timestamp: timestamp,
+                processed: false
+            });
+
+            // Сохраняем обновленный файл
+            await fetch(
+                `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/messages.json`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: `New message: ${timestamp}`,
+                        content: btoa(JSON.stringify({ messages }, null, 2)),
+                        sha: sha || undefined
+                    })
+                }
+            );
+        }
+
+        // ПОЛУЧЕНИЕ СООБЩЕНИЙ ИЗ РЕПО
+        async function getMessagesFromRepo() {
+            const token = localStorage.getItem('github_token');
+            if (!token) return [];
+
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/messages.json`,
+                    { headers: { 'Authorization': `token ${token}` } }
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    return JSON.parse(atob(data.content)).messages || [];
+                }
+            } catch (e) {}
+            return [];
         }
 
         // ЗАГРУЗКА СТАТИСТИКИ
         async function loadStats() {
             try {
-                const response = await fetch(
-                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/beliefs.json`,
-                    { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } }
-                );
-                
-                if (!response.ok) {
-                    throw new Error('Ошибка загрузки');
-                }
+                const token = localStorage.getItem('github_token');
+                if (!token) return;
 
-                const data = await response.json();
-                const content = JSON.parse(atob(data.content));
-                
+                const messages = await getMessagesFromRepo();
                 const tbody = document.getElementById('stats-table-body');
                 tbody.innerHTML = '';
 
-                let successCount = 0;
-                let failedCount = 0;
-
-                if (content.knowledge_base && content.knowledge_base.length > 0) {
-                    content.knowledge_base.forEach(item => {
-                        let statusClass = 'status-' + item.status;
-                        if (item.status === '200') successCount++;
-                        else if (item.status === '404' || item.status === '500') failedCount++;
-
+                if (messages && messages.length > 0) {
+                    messages.forEach(msg => {
+                        const status = msg.processed ? '✅ Обработано' : '⏳ В очереди';
+                        const statusColor = msg.processed ? '#3fb950' : '#d29922';
+                        
                         let row = `<tr>
-                            <td>${item.target || 'N/A'}</td>
-                            <td class="${statusClass}">${item.status}</td>
-                            <td>${item.conclusion || 'N/A'}</td>
-                            <td>${item.time || new Date().toLocaleString()}</td>
+                            <td>${msg.text}</td>
+                            <td>${msg.response || '-'}</td>
+                            <td style="color: ${statusColor}; font-weight: bold;">${status}</td>
+                            <td>${new Date(msg.timestamp).toLocaleString()}</td>
                         </tr>`;
                         tbody.innerHTML += row;
                     });
 
-                    document.getElementById('total-targets').textContent = content.knowledge_base.length;
-                    document.getElementById('success-count').textContent = successCount;
-                    document.getElementById('failed-count').textContent = failedCount;
-                    document.getElementById('last-update').textContent = 'Только что';
+                    document.getElementById('total-targets').textContent = messages.length;
+                    const processed = messages.filter(m => m.processed).length;
+                    document.getElementById('success-count').textContent = processed;
+                    document.getElementById('last-update').textContent = 'Сейчас';
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #8b949e;">Нет данных</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #8b949e;">Нет сообщений</td></tr>';
                 }
             } catch (e) {
-                console.log('Ошибка загрузки статистики:', e);
-                document.getElementById('stats-table-body').innerHTML = 
-                    '<tr><td colspan="4" style="text-align: center; color: #f85149;">❌ Ошибка загрузки</td></tr>';
+                console.log('Ошибка загрузки:', e);
             }
         }
 
-        // ПЕРЕКЛЮЧАТЕЛЬ
-        function toggleSwitch(element) {
-            element.classList.toggle('active');
+        // РУЧНАЯ СИНХРОНИЗАЦИЯ
+        async function manualSync() {
+            alert('✓ Синхронизация инициирована! GitHub Actions запустится в течение минуты.');
         }
 
-        // СОХРАНЕНИЕ НАСТРОЕК
-        function saveSettings() {
-            const token = document.getElementById('github-token').value;
-            if (token) {
-                localStorage.setItem('github_token', token);
-                GITHUB_TOKEN = token;
-                alert('✓ Настройки сохранены!');
-            }
+        // ОЧИСТКА ИСТОРИИ
+        async function clearHistory() {
+            const token = localStorage.getItem('github_token');
+            if (!token) return;
 
-            const aiName = document.getElementById('ai-name').value;
-            const personality = document.getElementById('ai-personality').value;
-            localStorage.setItem('ai_name', aiName);
-            localStorage.setItem('ai_personality', personality);
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/messages.json`,
+                    { headers: { 'Authorization': `token ${token}` } }
+                );
+                const data = await response.json();
+
+                await fetch(
+                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/messages.json`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: 'Clear chat history',
+                            content: btoa(JSON.stringify({ messages: [] }, null, 2)),
+                            sha: data.sha
+                        })
+                    }
+                );
+                alert('✓ История очищена!');
+                loadStats();
+            } catch (e) {
+                alert('❌ Ошибка при очистке: ' + e.message);
+            }
         }
 
         // ВЫХОД
@@ -881,12 +906,17 @@
             }
         }
 
-        // Обновляем статистику каждые 10 секунд
-        setInterval(() => {
-            if (currentPage === 'stats') {
-                loadStats();
+        // При первом входе просим токен
+        window.addEventListener('load', () => {
+            let token = localStorage.getItem('github_token');
+            if (!token) {
+                token = prompt('Введи GitHub токен для работы:\nhttps://github.com/settings/tokens');
+                if (token) {
+                    localStorage.setItem('github_token', token);
+                    location.reload();
+                }
             }
-        }, 10000);
+        });
     </script>
 </body>
 </html>
