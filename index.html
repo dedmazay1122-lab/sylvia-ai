@@ -39,5 +39,18 @@
                 });
             });
     </script>
-</body>
+<div id="chat-box" style="margin-top: 50px; border: 1px solid #30363d; padding: 20px;">
+    <h3>Канал связи с Сильвией</h3>
+    <input type="text" id="user-input" placeholder="Введите команду для Сильвии..." style="width: 80%; background: #0d1117; color: white;">
+    <button onclick="sendMessage()">Отправить</button>
+    <p id="response"></p>
+</div>
+
+<script>
+function sendMessage() {
+    let msg = document.getElementById('user-input').value;
+    document.getElementById('response').innerText = "Сильвия: Команда принята: '" + msg + "'. Я запишу это в журнал.";
+    // Здесь позже мы добавим логику отправки этого сообщения в файл на GitHub
+}
+</script> </body>
 </html>
