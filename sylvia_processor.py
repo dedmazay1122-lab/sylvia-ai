@@ -113,3 +113,45 @@ def generate_response(user_input, beliefs):
 if __name__ == "__main__":
     process_messages()
     print("OK: Sylvia completed processing!")
+    # --- Добавь это в самый конец файла sylvia_processor.py ---
+
+def get_ai_response(user_text):
+    """Эта функция нужна для связи с FastAPI"""
+    from core import load_beliefs, save_beliefs
+    beliefs = load_beliefs()
+    response = generate_response(user_text, beliefs)
+    
+    # Сохраняем в базу, чтобы обучение работало
+    entry = {
+        "target": user_text[:50],
+        "status": "200",
+        "conclusion": response,
+        "time": datetime.now().isoformat()
+    }
+    beliefs["knowledge_base"].append(entry)
+    save_beliefs(beliefs)
+    
+    return response
+def generate_response(user_input, beliefs):
+    words = set(user_input.lower().split())
+    
+    # 1. Сначала ищем в твоих загруженных знаниях (предположим, они в beliefs["rules"])
+    # Если ты загрузил текст в rules, она будет искать там
+    for rule_key, rule_val in beliefs.get("rules", {}).items():
+        if any(word in rule_val.lower() for word in words):
+            return f"Из моей базы знаний: {rule_val}"
+
+    # 2. Если в знаниях ничего нет, ищем в истории диалогов (как мы сделали раньше)
+    best_match = None
+    max_matches = 0
+    for entry in beliefs.get("knowledge_base", []):
+        target_words = set(entry.get("target", "").lower().split())
+        matches = len(words.intersection(target_words))
+        if matches > max_matches:
+            max_matches = matches
+            best_match = entry.get("conclusion")
+    
+    if best_match and max_matches > 0:
+        return f"Я припоминаю это: '{best_match}'"
+    
+    return "Я пока не нашла информации об этом в своих архивах. Расскажи подробнее, я запомню!"
