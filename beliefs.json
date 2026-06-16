@@ -2753,6 +2753,21 @@
             "target": "http://www.iana.org/dnssec",
             "status": "200",
             "conclusion": "accessible_resource"
+        },
+        {
+            "target": "http://example.com/admin",
+            "status": "404",
+            "conclusion": "resource_not_found"
+        },
+        {
+            "target": "http://example.com/config",
+            "status": "404",
+            "conclusion": "resource_not_found"
+        },
+        {
+            "target": "http://example.com/login",
+            "status": "404",
+            "conclusion": "resource_not_found"
         }
     ]
 }
