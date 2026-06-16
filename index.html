@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Система Сильвия | Панель управления</title>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; padding: 20px; }
+        h1 { color: #58a6ff; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #30363d; padding: 10px; text-align: left; }
+        th { background-color: #161b22; }
+        .status-200 { color: #3fb950; }
+        .status-404 { color: #f85149; }
+    </style>
+</head>
+<body>
+    <h1>Сильвия: Отчет о состоянии системы</h1>
+    <div id="report">Загрузка данных...</div>
+    <table id="data-table">
+        <thead>
+            <tr><th>Цель (Target)</th><th>Статус</th><th>Вывод</th></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+    </table>
+
+    <script>
+        // Скрипт для загрузки beliefs.json
+        fetch('beliefs.json')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('table-body');
+                data.knowledge_base.forEach(item => {
+                    let row = `<tr>
+                        <td>${item.target}</td>
+                        <td class="status-${item.status}">${item.status}</td>
+                        <td>${item.conclusion}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            });
+    </script>
+</body>
+</html>
